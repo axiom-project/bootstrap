@@ -1,5 +1,5 @@
-APP=merritt
-REPO?=merritt/$(APP)
+APP=axiom
+REPO?=axiom/$(APP)
 TAG?=latest
 
 KUBERNETES_VERSION?=1.8.1
