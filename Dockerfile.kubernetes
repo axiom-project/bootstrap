@@ -1,0 +1,26 @@
+FROM alpine:latest as builder
+ARG KUBERNETES_VERSION
+ARG ARCH
+
+RUN apk add --no-cache \
+	ca-certificates \
+	curl \
+	openssl
+
+WORKDIR /
+RUN curl -sL https://dl.k8s.io/v${KUBERNETES_VERSION}/kubernetes-server-linux-${ARCH}.tar.gz | \
+	tar zxvf -
+
+RUN	wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.25-r0/glibc-2.25-r0.apk
+
+
+FROM alpine:latest
+ARG TARGET
+
+RUN apk add --no-cache \
+	openssl
+
+COPY --from=builder /glibc-2.25-r0.apk /
+COPY --from=builder /kubernetes/server/bin/${TARGET} /usr/local/bin
+RUN wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://raw.githubusercontent.com/sgerrand/alpine-pkg-glibc/master/sgerrand.rsa.pub && \
+	apk add glibc-2.25-r0.apk
